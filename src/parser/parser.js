@@ -8,5 +8,6 @@ export default class Parser {
 
     parse() {
         // return a parsed and validated object in JSON.
+        return reader(this.str);
     }
 }

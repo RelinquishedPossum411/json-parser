@@ -2,7 +2,7 @@
 
 const path = require("path"),
     configuration = {
-        entry: "",
+        entry: "./src/core.js",
         output: {
             path: path.resolve(__dirname, "build/"),
             filename: "build.js"
