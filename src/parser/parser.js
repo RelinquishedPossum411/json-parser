@@ -1,5 +1,5 @@
 
-import reader from "./util/reader";
+import reader from "./components/reader";
 
 export default class Parser {
     constructor(jsonString) {

@@ -8,4 +8,6 @@ export default function (string) {
     // Shallow validation to skip most of the work.
     if (!validate(string))
         return;
+
+    
 }
