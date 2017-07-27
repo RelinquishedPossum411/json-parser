@@ -1,0 +1,17 @@
+{
+  "name": "json-xml-parser",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "directories": {
+    "test": "tests"
+  },
+  "scripts": {
+    "test": "webpack"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+      "webpack": "*"
+  }
+}
