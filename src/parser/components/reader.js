@@ -99,6 +99,9 @@ export default function read(string) {
 
     /**
      * Attempts to assign a "type" to a specified value.
+     * @param   value - a string value to try finding a primitive value for.
+     * @return  returns an equivalent primitive value if found. Otherwise,
+     *          returns the original string.
      */
     function typify(value) {
         if (value === "true")
