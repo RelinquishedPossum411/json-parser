@@ -59,8 +59,9 @@ export default function read(string) {
         else if (mode === 1 &&
                 (string[cursor] === "," || string[cursor] === "}")) {
             if (currentComponent && currentEntry) {
-                if (typeof currentEntry === "string")
+                if (typeof currentEntry === "string") {
                     currentEntry = typify(polish(currentEntry));
+                }
 
                 notation[polish(currentComponent)] = currentEntry;
 
@@ -157,6 +158,11 @@ export default function read(string) {
     function enclosedQuotes(string) {
         return  regex.rEnclosedQuotes.test(string) ||
                 regex.rEnclosedQuotes.test(string.trim());
+    }
+
+    function enclosedBraces(string) {
+        return  regex.rEnclosedBrackets.test(string) ||
+                regex.rEnclosedBrackets.test(string.trim());
     }
 
     return notation;

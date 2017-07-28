@@ -4,6 +4,7 @@
 // Allow spaces if there are quotes, but don't if there aren't.
 const   rEntry = /[\w]/,
         rWhitespace = /\s+/,
-        rEnclosedQuotes = /^".*"$/;
+        rEnclosedQuotes = /^".*"$/,
+        rEnclosedBrackets = /^{.*}$/;
 
-export { rWhitespace, rEnclosedQuotes };
+export { rWhitespace, rEnclosedQuotes, rEnclosedBrackets };
