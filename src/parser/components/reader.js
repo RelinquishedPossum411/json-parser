@@ -18,16 +18,17 @@ export default function read(string) {
     while (cursor < string.length) {
         console.log("Token: " + string[cursor] + "\nMode: " + mode);
 
-        // Parsing error.
-        if (cursor === 0 &&
-            (string[cursor] !== "{" || string[string.length - 1] !== "}")) {
-            console.error("[JSON String Parser] Parsing error: Inbalanced brackets detected.");
-            return;
-        }
+        // Handle first character and address any parsing problems with it.
+        if (cursor === 0) {
+            if (string[cursor] !== "{" || string[string.length - 1] !== "}") {
+                console.error("[JSON String Parser] Parsing error: Inbalanced brackets detected.");
+                return;
+            } else if (string[cursor] === "{") {
+                cursor++;
+                continue;
+            }
 
-        if (cursor === 0 && string[cursor] === "{") {
-            cursor++;
-            continue;
+            return;
         }
 
         // Check if the character is a colon and that it is correctly placed.
