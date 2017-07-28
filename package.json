@@ -1,15 +1,16 @@
 {
   "name": "json-xml-parser",
   "version": "1.0.0",
-  "description": "",
+  "description": "A JSON parser.",
   "main": "index.js",
   "directories": {
     "test": "tests"
   },
   "scripts": {
-    "test": "webpack"
+    "wp": "webpack",
+    "wpp": "webpack -p"
   },
-  "author": "",
+  "author": "Benjamin Huang",
   "license": "ISC",
   "dependencies": {
       "webpack": "*"
