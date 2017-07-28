@@ -8,6 +8,8 @@ export default function read(string) {
         mode = 0, // Modes: 0 building key, 1 building value, 2 in between
         cursor = 0;
 
+    console.log("Reading " + string);
+
     const notation = {};
 
     // If the string can't be validated, simply return.
@@ -60,7 +62,10 @@ export default function read(string) {
                 (string[cursor] === "," || string[cursor] === "}")) {
             if (currentComponent && currentEntry) {
                 if (typeof currentEntry === "string") {
-                    currentEntry = typify(polish(currentEntry));
+                    currentEntry = currentEntry.trim();
+                    currentEntry =  enclosedBrackets(currentEntry + "}") ?
+                                    read(currentEntry + "}") :
+                                    typify(polish(currentEntry));
                 }
 
                 notation[polish(currentComponent)] = currentEntry;
@@ -160,7 +165,12 @@ export default function read(string) {
                 regex.rEnclosedQuotes.test(string.trim());
     }
 
-    function enclosedBraces(string) {
+    /**
+     * Checks if a string, trimmed is enclosed in curly brackets.
+     * @param string - some string to be tested.
+     * @return returns true or false.
+     */
+    function enclosedBrackets(string) {
         return  regex.rEnclosedBrackets.test(string) ||
                 regex.rEnclosedBrackets.test(string.trim());
     }
