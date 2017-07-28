@@ -16,7 +16,7 @@ export default function read(string) {
         return;
 
     while (cursor < string.length) {
-        console.log("Token: " + string[cursor] + "\nMode: " + mode);
+        console.log("Token: " + string[cursor] + "\nMode: " + mode + "\n" + currentComponent + ": " + currentEntry);
 
         // Handle first character and address any parsing problems with it.
         if (cursor === 0) {
@@ -34,6 +34,17 @@ export default function read(string) {
         // Check if the character is a colon and that it is correctly placed.
         // Perform checks to make sure we're not parsing an invalid key.
         else if (mode === 0 && string[cursor] === ":") {
+            // The string begins with a quotation, so we can still accept
+            // irregular characters.
+            if (!enclosedQuotes(currentComponent) &&
+                (currentComponent.startsWith("\"") ||
+                currentComponent.trim().startsWith("\""))) {
+                currentComponent += ":";
+                cursor++;
+                continue;
+            }
+
+
             if (!validateKeyValue(currentComponent) &&
                 !validateKeyValue(currentComponent.trim())) {
                 console.error("[JSON String Parser] Parsing error: Invalid key value.");
@@ -51,7 +62,7 @@ export default function read(string) {
                 if (typeof currentEntry === "string")
                     currentEntry = typify(polish(currentEntry));
 
-                notation[currentComponent.trim()] = currentEntry;
+                notation[polish(currentComponent)] = currentEntry;
 
                 currentComponent = "";
                 currentEntry = "";
@@ -121,6 +132,11 @@ export default function read(string) {
         return true;
     }
 
+    /**
+     * Trims enclosing quotation marks on a string, if any.
+     * @param string - a string to be "polished."
+     * @return returns the "polished" string, or the original string.
+     */
     function polish(string) {
         string = string.trim();
 
@@ -130,8 +146,14 @@ export default function read(string) {
         return string;
     }
 
+    /**
+     * Checks if a string, trimmed is enclosed in quotation marks.
+     * @param string - some string to be tested.
+     * @return returns true or false.
+     */
     function enclosedQuotes(string) {
-        return regex.rEnclosedQuotes.test(string);
+        return  regex.rEnclosedQuotes.test(string) ||
+                regex.rEnclosedQuotes.test(string.trim());
     }
 
     return notation;

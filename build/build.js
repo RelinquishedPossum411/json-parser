@@ -145,23 +145,35 @@ function read(string) {
         return;
 
     while (cursor < string.length) {
-        console.log("Token: " + string[cursor] + "\nMode: " + mode);
+        console.log("Token: " + string[cursor] + "\nMode: " + mode + "\n" + currentComponent + ": " + currentEntry);
 
-        // Parsing error.
-        if (cursor === 0 &&
-            (string[cursor] !== "{" || string[string.length - 1] !== "}")) {
-            console.error("[JSON String Parser] Parsing error: Inbalanced brackets detected.");
+        // Handle first character and address any parsing problems with it.
+        if (cursor === 0) {
+            if (string[cursor] !== "{" || string[string.length - 1] !== "}") {
+                console.error("[JSON String Parser] Parsing error: Inbalanced brackets detected.");
+                return;
+            } else if (string[cursor] === "{") {
+                cursor++;
+                continue;
+            }
+
             return;
-        }
-
-        if (cursor === 0 && string[cursor] === "{") {
-            cursor++;
-            continue;
         }
 
         // Check if the character is a colon and that it is correctly placed.
         // Perform checks to make sure we're not parsing an invalid key.
         else if (mode === 0 && string[cursor] === ":") {
+            // The string begins with a quotation, so we can still accept
+            // irregular characters.
+            if (!enclosedQuotes(currentComponent) &&
+                (currentComponent.startsWith("\"") ||
+                currentComponent.trim().startsWith("\""))) {
+                currentComponent += ":";
+                cursor++;
+                continue;
+            }
+
+
             if (!validateKeyValue(currentComponent) &&
                 !validateKeyValue(currentComponent.trim())) {
                 console.error("[JSON String Parser] Parsing error: Invalid key value.");
@@ -179,7 +191,7 @@ function read(string) {
                 if (typeof currentEntry === "string")
                     currentEntry = typify(polish(currentEntry));
 
-                notation[currentComponent.trim()] = currentEntry;
+                notation[polish(currentComponent)] = currentEntry;
 
                 currentComponent = "";
                 currentEntry = "";
@@ -259,7 +271,8 @@ function read(string) {
     }
 
     function enclosedQuotes(string) {
-        return __WEBPACK_IMPORTED_MODULE_1__util_regex__["a" /* rEnclosedQuotes */].test(string);
+        return  __WEBPACK_IMPORTED_MODULE_1__util_regex__["a" /* rEnclosedQuotes */].test(string) ||
+                __WEBPACK_IMPORTED_MODULE_1__util_regex__["a" /* rEnclosedQuotes */].test(string.trim());
     }
 
     return notation;
