@@ -140,7 +140,7 @@ export default function read(string) {
     function polish(string) {
         string = string.trim();
 
-        if (regex.rEnclosedQuotes.test(string))
+        if (enclosedQuotes(string))
             return string.substring(1, string.length - 1);
 
         return string;
