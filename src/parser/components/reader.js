@@ -8,8 +8,6 @@ export default function read(string) {
         mode = 0, // Modes: 0 building key, 1 building value, 2 in between
         cursor = 0;
 
-    console.log("Reading " + string);
-
     const notation = {};
 
     // If the string can't be validated, simply return.
@@ -49,11 +47,17 @@ export default function read(string) {
 
             if (!validateKeyValue(currentComponent) &&
                 !validateKeyValue(currentComponent.trim())) {
-                console.error("[JSON String Parser] Parsing error: Invalid key value.");
+                console.error("[JSON String Parser] Parsing error: Invalid key value '" + currentComponent +  "'.");
                 return;
             }
 
             mode++;
+        }
+
+        // Irregularly placed curly bracket.
+        else if (mode === 0 && string[cursor] === "}" && string.length > 2) {
+            console.error("[JSON String Parser] Parsing error: Unexpected syntax '}' at position " + cursor + ".");
+            return;
         }
 
         // Append the completed entry. Only do it if we encounter a closing
