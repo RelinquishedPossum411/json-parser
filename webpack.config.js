@@ -1,5 +1,4 @@
 
-
 const path = require("path"),
     configuration = {
         entry: "./src/core.js",
