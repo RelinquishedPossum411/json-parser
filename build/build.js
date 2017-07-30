@@ -68,15 +68,17 @@
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "b", function() { return rWhitespace; });
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "a", function() { return rEnclosedQuotes; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "c", function() { return rWhitespace; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "b", function() { return rEnclosedQuotes; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "a", function() { return rEnclosedBrackets; });
 
 // Some regexes
 
 // Allow spaces if there are quotes, but don't if there aren't.
 const   rEntry = /[\w]/,
         rWhitespace = /\s+/,
-        rEnclosedQuotes = /^".*"$/;
+        rEnclosedQuotes = /^".*"$/,
+        rEnclosedBrackets = /^{.*}$/;
 
 
 
@@ -113,6 +115,21 @@ class Parser {
     parse() {
         // return a parsed and validated object in JSON.
         return Object(__WEBPACK_IMPORTED_MODULE_0__components_reader__["a" /* default */])(this.str);
+    }
+
+    static parse(jsonString) {
+        return Object(__WEBPACK_IMPORTED_MODULE_0__components_reader__["a" /* default */])(jsonString);
+    }
+
+    static parseAll(...arrayOfStrings) {
+        let i,
+            arrayOfObjects = [];
+
+        for (i of arrayOfStrings) {
+            arrayOfObjects.push(Object(__WEBPACK_IMPORTED_MODULE_0__components_reader__["a" /* default */])(i));
+        }
+
+        return arrayOfObjects;
     }
 }
 /* harmony export (immutable) */ __webpack_exports__["a"] = Parser;
@@ -176,11 +193,17 @@ function read(string) {
 
             if (!validateKeyValue(currentComponent) &&
                 !validateKeyValue(currentComponent.trim())) {
-                console.error("[JSON String Parser] Parsing error: Invalid key value.");
+                console.error("[JSON String Parser] Parsing error: Invalid key value '" + currentComponent +  "'.");
                 return;
             }
 
             mode++;
+        }
+
+        // Irregularly placed curly bracket.
+        else if (mode === 0 && string[cursor] === "}" && string.length > 2) {
+            console.error("[JSON String Parser] Parsing error: Unexpected syntax '}' at position " + cursor + ".");
+            return;
         }
 
         // Append the completed entry. Only do it if we encounter a closing
@@ -188,8 +211,12 @@ function read(string) {
         else if (mode === 1 &&
                 (string[cursor] === "," || string[cursor] === "}")) {
             if (currentComponent && currentEntry) {
-                if (typeof currentEntry === "string")
-                    currentEntry = typify(polish(currentEntry));
+                if (typeof currentEntry === "string") {
+                    currentEntry = currentEntry.trim();
+                    currentEntry =  enclosedBrackets(currentEntry + "}") ?
+                                    read(currentEntry + "}") :
+                                    typify(polish(currentEntry));
+                }
 
                 notation[polish(currentComponent)] = currentEntry;
 
@@ -203,7 +230,7 @@ function read(string) {
         // Mode 2 is the step between two entries: a comma token had been
         // detected, so in this step all whitespaces are skipped.
         else if (mode === 2) {
-            if (!__WEBPACK_IMPORTED_MODULE_1__util_regex__["b" /* rWhitespace */].test(string[cursor])) {
+            if (!__WEBPACK_IMPORTED_MODULE_1__util_regex__["c" /* rWhitespace */].test(string[cursor])) {
                 // Reset and parse a new entry.
                 cursor--;
                 mode = 0;
@@ -214,7 +241,7 @@ function read(string) {
             if (mode === 0) {
                 currentComponent += string[cursor];
             } else if (mode === 1) {
-                if (currentEntry.trim() && currentEntry.trim()[0] !== "\"" && __WEBPACK_IMPORTED_MODULE_1__util_regex__["b" /* rWhitespace */].test(string[cursor])) {
+                if (currentEntry.trim() && currentEntry.trim()[0] !== "\"" && __WEBPACK_IMPORTED_MODULE_1__util_regex__["c" /* rWhitespace */].test(string[cursor])) {
                     console.error("[JSON String Parser] Values must be enclosed in quotation marks to feature whitespaces.");
                     return;
                 }
@@ -228,6 +255,9 @@ function read(string) {
 
     /**
      * Attempts to assign a "type" to a specified value.
+     * @param   value - a string value to try finding a primitive value for.
+     * @return  returns an equivalent primitive value if found. Otherwise,
+     *          returns the original string.
      */
     function typify(value) {
         if (value === "true")
@@ -261,18 +291,38 @@ function read(string) {
         return true;
     }
 
+    /**
+     * Trims enclosing quotation marks on a string, if any.
+     * @param string - a string to be "polished."
+     * @return returns the "polished" string, or the original string.
+     */
     function polish(string) {
         string = string.trim();
 
-        if (__WEBPACK_IMPORTED_MODULE_1__util_regex__["a" /* rEnclosedQuotes */].test(string))
+        if (enclosedQuotes(string))
             return string.substring(1, string.length - 1);
 
         return string;
     }
 
+    /**
+     * Checks if a string, trimmed is enclosed in quotation marks.
+     * @param string - some string to be tested.
+     * @return returns true or false.
+     */
     function enclosedQuotes(string) {
-        return  __WEBPACK_IMPORTED_MODULE_1__util_regex__["a" /* rEnclosedQuotes */].test(string) ||
-                __WEBPACK_IMPORTED_MODULE_1__util_regex__["a" /* rEnclosedQuotes */].test(string.trim());
+        return  __WEBPACK_IMPORTED_MODULE_1__util_regex__["b" /* rEnclosedQuotes */].test(string) ||
+                __WEBPACK_IMPORTED_MODULE_1__util_regex__["b" /* rEnclosedQuotes */].test(string.trim());
+    }
+
+    /**
+     * Checks if a string, trimmed is enclosed in curly brackets.
+     * @param string - some string to be tested.
+     * @return returns true or false.
+     */
+    function enclosedBrackets(string) {
+        return  __WEBPACK_IMPORTED_MODULE_1__util_regex__["a" /* rEnclosedBrackets */].test(string) ||
+                __WEBPACK_IMPORTED_MODULE_1__util_regex__["a" /* rEnclosedBrackets */].test(string.trim());
     }
 
     return notation;
